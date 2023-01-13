@@ -1,0 +1,12 @@
+package visitors
+
+import tokenizer.*
+
+interface TokenVisitor {
+    fun visit(token: StartToken)
+    fun visit(token: NumberToken)
+    fun visit(token: LeftBrace)
+    fun visit(token: RightBrace)
+    fun visit(token: Operation)
+    fun visit(token: EndToken)
+}
