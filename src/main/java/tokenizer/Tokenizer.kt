@@ -58,65 +58,67 @@ class Tokenizer(val input: String) {
     }
 
     private fun parseNext() {
-        when (state.automatonPosition) {
-            AutomatonPosition.Start -> when (input[state.position]) {
-                '(' -> {
-                    state = state.copy(
-                        position = state.position + 1,
-                        tokens = state.tokens + LeftBrace
-                    )
-                }
-                ')' -> {
-                    state = state.copy(
-                        position = state.position + 1,
-                        tokens = state.tokens + RightBrace
-                    )
-                }
-                '*' -> {
-                    state = state.copy(
-                        position = state.position + 1,
-                        tokens = state.tokens + Operation({ a, b -> a * b }, "*")
-                    )
-                }
-                '+' -> {
-                    state = state.copy(
-                        position = state.position + 1,
-                        tokens = state.tokens + Operation({ a, b -> a + b }, "+")
-                    )
-                }
-                '-' -> {
-                    state = state.copy(
-                        position = state.position + 1,
-                        tokens = state.tokens + Operation({ a, b -> a - b }, "-")
-                    )
-                }
-                '/' -> {
-                    state = state.copy(
-                        position = state.position + 1,
-                        tokens = state.tokens + Operation({ a, b -> a / b }, "/")
-                    )
-                }
-                '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> {
-                    state = state.copy(
-                        automatonPosition = AutomatonPosition.Number
-                    )
-                }
-                else -> {
-                    state = state.copy(
-                        automatonPosition = AutomatonPosition.Error
-                    )
+        state = when (state.automatonPosition) {
+            AutomatonPosition.Start -> {
+                when (input[state.position]) {
+                    '(' -> {
+                        state.copy(
+                            position = state.position + 1,
+                            tokens = state.tokens + LeftBrace
+                        )
+                    }
+                    ')' -> {
+                        state.copy(
+                            position = state.position + 1,
+                            tokens = state.tokens + RightBrace
+                        )
+                    }
+                    '*' -> {
+                        state.copy(
+                            position = state.position + 1,
+                            tokens = state.tokens + Operation({ a, b -> a * b }, "*")
+                        )
+                    }
+                    '+' -> {
+                        state.copy(
+                            position = state.position + 1,
+                            tokens = state.tokens + Operation({ a, b -> a + b }, "+")
+                        )
+                    }
+                    '-', '–' -> {
+                        state.copy(
+                            position = state.position + 1,
+                            tokens = state.tokens + Operation({ a, b -> a - b }, "-")
+                        )
+                    }
+                    '/' -> {
+                        state.copy(
+                            position = state.position + 1,
+                            tokens = state.tokens + Operation({ a, b -> a / b }, "/")
+                        )
+                    }
+                    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> {
+                        state.copy(
+                            automatonPosition = AutomatonPosition.Number
+                        )
+                    }
+                    else -> {
+                        state.copy(
+                            automatonPosition = AutomatonPosition.Error
+                        )
+                    }
                 }
             }
             AutomatonPosition.Number -> {
                 when (input[state.position]) {
                     '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> {
-                        state = state.copy(
+                        state.copy(
                             position = state.position + 1,
                             tokenSequence = state.tokenSequence + input[state.position]
                         )
                     }
                     else -> {
-                        state = state.copy(
+                        state.copy(
                             tokenSequence = "",
                             automatonPosition = AutomatonPosition.Start,
                             tokens = state.tokens + NumberToken(Integer.parseInt(state.tokenSequence))
@@ -124,9 +126,9 @@ class Tokenizer(val input: String) {
                     }
                 }
             }
-            AutomatonPosition.Error -> return
+            AutomatonPosition.Error -> state
             AutomatonPosition.End -> {
-                state = state.copy(
+                state.copy(
                     tokenSequence = "",
                     tokens = state.tokens + NumberToken(Integer.parseInt(state.tokenSequence))
                 )
@@ -137,7 +139,7 @@ class Tokenizer(val input: String) {
     private fun skipWhitespaces() {
         var firstNonEmptyIndex = state.position
         while (state.position < input.length && isWhitespace(input[firstNonEmptyIndex])) {
-            firstNonEmptyIndex++;
+            firstNonEmptyIndex++
         }
 
         state = state.copy(
