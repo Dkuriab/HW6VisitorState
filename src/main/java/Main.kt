@@ -1,30 +1,27 @@
 import tokenizer.Tokenizer
+import visitors.CalcVisitor
 import visitors.ParserVisitor
 import visitors.PrintVisitor
+import kotlin.jvm.Throws
 
 fun main() {
     while (true) {
         val input = readLine()!!
-        val printVisitor = PrintVisitor()
-        val parserVisitor = ParserVisitor()
-        val tokenizer = Tokenizer(input)
-        val tokens = tokenizer.tokenize()
-
-        for (token in tokens) {
-            token.accept(printVisitor)
-            token.accept(parserVisitor)
-        }
-
-        println()
-
-        val polishNotationTokens = parserVisitor.finish()
-
-        for (token in polishNotationTokens) {
-            token.accept(printVisitor)
-        }
-
-        println()
-
+        println(calcExpression(input))
     }
+}
 
+@Throws(IllegalArgumentException::class)
+fun calcExpression(expression: String): Int {
+    val printVisitor = PrintVisitor()
+    val parserVisitor = ParserVisitor()
+    val calcVisitor = CalcVisitor()
+
+    val tokenizer = Tokenizer(expression)
+    val tokens = tokenizer.tokenize()
+
+    val polishNotationTokens = parserVisitor.parse(tokens)
+    printVisitor.print(polishNotationTokens)
+
+    return calcVisitor.calc(polishNotationTokens)
 }

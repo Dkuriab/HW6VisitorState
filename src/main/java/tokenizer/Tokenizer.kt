@@ -1,5 +1,6 @@
 package tokenizer
 
+import errors.IncorrectSymbolException
 import java.lang.Character.isWhitespace
 import java.util.Collections.emptyList
 
@@ -31,18 +32,19 @@ class Tokenizer(val input: String) {
 
     fun tokenize(): List<Token> {
 
+        skipWhitespaces()
         while (state.position < input.length && state.automatonPosition !in setOf(
                 AutomatonPosition.End,
                 AutomatonPosition.Error
             )
         ) {
-            skipWhitespaces()
             parseNext()
+            skipWhitespaces()
         }
         flush()
 
         if (state.automatonPosition == AutomatonPosition.Error) {
-            throw IllegalArgumentException("Incorrect symbol at position: ${state.position}")
+            throw IncorrectSymbolException(position = state.position)
         }
 
         return state.tokens
@@ -138,7 +140,7 @@ class Tokenizer(val input: String) {
 
     private fun skipWhitespaces() {
         var firstNonEmptyIndex = state.position
-        while (state.position < input.length && isWhitespace(input[firstNonEmptyIndex])) {
+        while (firstNonEmptyIndex < input.length && isWhitespace(input[firstNonEmptyIndex])) {
             firstNonEmptyIndex++
         }
 

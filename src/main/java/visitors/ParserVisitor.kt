@@ -1,5 +1,6 @@
 package visitors
 
+import errors.InconsistentBracesException
 import tokenizer.*
 import java.lang.IllegalArgumentException
 
@@ -7,7 +8,12 @@ class ParserVisitor: TokenVisitor {
     private var stack: MutableList<Token> = mutableListOf()
     private var resultList: MutableList<Token> = mutableListOf()
 
-    override fun visit(token: StartToken) {}
+    fun parse(tokens: List<Token>): List<Token> {
+        for (token in tokens) {
+            token.accept(this)
+        }
+        return finish()
+    }
 
     override fun visit(token: LeftBrace) {
         stack.add(token)
@@ -18,7 +24,7 @@ class ParserVisitor: TokenVisitor {
             resultList.add(stack.removeLast())
         }
         if (stack.isEmpty()) {
-            throw IllegalArgumentException("No pair braces")
+            throw InconsistentBracesException
         }
         stack.removeLast()
     }
@@ -30,8 +36,6 @@ class ParserVisitor: TokenVisitor {
     override fun visit(token: Operation) {
         stack.add(token)
     }
-
-    override fun visit(token: EndToken) {}
 
     fun finish(): List<Token> {
         while (stack.isNotEmpty()) {

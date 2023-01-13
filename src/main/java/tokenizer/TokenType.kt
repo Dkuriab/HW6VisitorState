@@ -6,19 +6,6 @@ interface Token {
     fun accept(visitor: TokenVisitor)
 }
 
-object StartToken: Token {
-    override fun accept(visitor: TokenVisitor) {
-        visitor.visit(this)
-    }
-}
-
-
-object EndToken: Token {
-    override fun accept(visitor: TokenVisitor) {
-        visitor.visit(this)
-    }
-}
-
 data class NumberToken(
     val num: Int
 ): Token {
@@ -46,4 +33,9 @@ data class Operation(
     override fun accept(visitor: TokenVisitor) {
         visitor.visit(this)
     }
+
+    fun apply(left: NumberToken, right: NumberToken) =
+        NumberToken(
+            function.invoke(left.num, right.num)
+        )
 }

@@ -3,7 +3,13 @@ package visitors
 import tokenizer.*
 
 class PrintVisitor: TokenVisitor {
-    override fun visit(token: StartToken) {}
+
+    fun print(tokens: List<Token>) {
+        for (token in tokens) {
+            token.accept(this)
+        }
+        println()
+    }
 
     override fun visit(token: NumberToken) {
         print("NUMBER(${token.num}) ")
@@ -25,6 +31,4 @@ class PrintVisitor: TokenVisitor {
             "/" -> print("DIV ")
         }
     }
-
-    override fun visit(token: EndToken) {}
 }
